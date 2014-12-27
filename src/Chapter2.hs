@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, NPlusKPatterns #-}
 
 -- | Chapter 2 - Persistence
 module Chapter2 where
@@ -45,6 +45,31 @@ instance SetLike Tree where
                               | elem > a = Node a ls <$> go rs
                               | otherwise = abort root
         in go root
+
+-- Exercise 2.5
+
+-- | A complete binary tree
+complete :: a      -- ^ element to fill each node
+         -> Int    -- ^ depth of tree
+         -> Tree a
+complete a = go where
+    go 0 = empty
+    go d = let t = go (d - 1) in Node a t t
+
+-- | A balanced (but possibly incomplete) binary tree
+balanced :: a      -- ^ element to fill each node
+         -> Int    -- ^ number of elements
+         -> Tree a
+balanced a = go where
+    go 0     = empty
+    go (n+1) | isEven n  = Node a t t
+             | otherwise = Node a t t'
+      where
+        m = n `div` 2
+        t = go m
+        t' = go (m + 1)
+
+    isEven n = n `mod` 2 == 0
 
 main :: IO ()
 main = do
