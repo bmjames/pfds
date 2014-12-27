@@ -6,7 +6,7 @@ module Chapter2 where
 import Control.Applicative hiding (empty)
 import Control.Monad.Trans.Cont
 import Data.Maybe (isJust)
-import Prelude hiding (lookup)
+import Prelude hiding (elem, lookup)
 import Test.QuickCheck
 import qualified Data.List as L
 
@@ -90,7 +90,7 @@ data TreeMap k v = EmptyMap | MapNode k v (TreeMap k v) (TreeMap k v)
 instance MapLike TreeMap where
     emptyMap = EmptyMap
 
-    bind (k, v) root = go root where
+    bind (k, v) = go where
         go EmptyMap = MapNode k v EmptyMap EmptyMap
         go (MapNode k' v' ls rs) | k < k' = MapNode k' v' (go ls) rs
                                  | k > k' = MapNode k' v' ls (go rs)
