@@ -10,6 +10,7 @@ class HeapLike f where
     empty :: f a
     insert :: Ord a => a -> f a -> f a
     merge :: Ord a => f a -> f a -> f a
+    findMin :: Ord a => f a -> Maybe a
     deleteMin :: Ord a => f a -> Maybe (f a)
 
 type Rank = Int
@@ -38,6 +39,9 @@ instance HeapLike Heap where
         swap n1 n2 | rank n2 > rank n1 = (n2, n1)
                    | otherwise = (n1, n2)
 
+    findMin Empty = Nothing
+    findMin (Node _ a _ _) = Just a
+
     deleteMin Empty = Nothing
     deleteMin (Node _ _ l r) = Just (merge l r)
 
@@ -63,4 +67,4 @@ main = mainWith $ vcat
        $ intersperse (strut unitY)
        $ map (renderHeap return) trees
   where
-    trees = scanl (flip insert) empty "christmastree" :: [Heap Char]
+    trees = scanl (flip insert) empty "happynewyear" :: [Heap Char]
