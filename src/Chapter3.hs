@@ -1,7 +1,6 @@
 module Chapter3 where
 
-import Data.Foldable hiding (foldr)
-import Data.List (intersperse)
+import Data.Foldable
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import qualified Diagrams.TwoD.Layout.Tree as D
@@ -12,6 +11,7 @@ class HeapLike f where
     merge :: Ord a => f a -> f a -> f a
     findMin :: Ord a => f a -> Maybe a
     deleteMin :: Ord a => f a -> Maybe (f a)
+    fromList :: (Ord a, Show a) => [a] -> f a
 
 type Rank = Int
 
@@ -45,6 +45,17 @@ instance HeapLike Heap where
     deleteMin Empty = Nothing
     deleteMin (Node _ _ l r) = Just (merge l r)
 
+    -- Exercise 3.3: Implement fromList to make log(n) passes over the input
+    -- Hopefully this takes O(n) time...
+    fromList = go . map unit where
+        go [] = empty
+        go [x] = x
+        go xs = go $ step xs
+
+        step (x1:x2:xs) = merge x1 x2 : step xs
+        step [x]        = [x]
+        step []         = []
+
 renderHeap :: (a -> String) -> Heap a -> Diagram B R2
 renderHeap label = foldMap (D.renderTree renderNode renderEdge)
            . D.uniqueXLayout xsep ysep
@@ -63,8 +74,4 @@ renderHeap label = foldMap (D.renderTree renderNode renderEdge)
     toBTree (Node s a l r) = D.BNode (s, a) (toBTree l) (toBTree r)
 
 main :: IO ()
-main = mainWith $ vcat
-       $ intersperse (strut unitY)
-       $ map (renderHeap return) trees
-  where
-    trees = scanl (flip insert) empty "happynewyear" :: [Heap Char]
+main = mainWith $ renderHeap return (fromList "happynewyear" :: Heap Char)
